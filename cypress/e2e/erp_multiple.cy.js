@@ -18,12 +18,21 @@ describe('ERP Multi-User Workflow', () => {
       cy.expandSidebar();
 
       // Step 3: Navigate Purchase → Purchase Order → Generate PO / Job Work
-      cy.contains('PURCHASE', { timeout: 10000 }).click();
-      cy.contains('PURCHASE ORDER', { timeout: 10000 }).click();
-      cy.contains('GENERATE PO / JOB WORK', { timeout: 10000 }).click();
+cy.contains('PURCHASE', { timeout: 10000 }).click();
+cy.contains('PURCHASE ORDER', { timeout: 10000 }).click();
+cy.contains('GENERATE PO / JOB WORK', { timeout: 10000 }).click();
 
-      // Step 4: Verify + Add New button
-cy.contains('+ Add New', { timeout: 10000 }).should('be.visible');
+// ✅ Wait for the page heading or some unique element to confirm page loaded
+cy.get('h1, h2, header', { timeout: 10000 }) // adjust selector to match your page header
+  .contains('GENERATE PO / JOB WORK')
+  .should('be.visible');
+
+// Step 4: Verify + Add New button in the header
+cy.get('header', { timeout: 10000 })
+  .contains(/\+ Add New/i) // regex for flexibility
+  .should('be.visible')
+  .click(); // optional if you want to click it
+
 
 
       // Step 5: Logout
