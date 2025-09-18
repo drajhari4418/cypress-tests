@@ -24,7 +24,7 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 Cypress.Commands.add('loginERP', (username, password) => {
-  cy.visit('https://test-utsah.digisecerp.com/TEST-UTSAH');
+  cy.visit('https://test-utsah.digisecerp.com/TEST-UTSAH/index.jsp');
 
   // Ensure login form is visible before typing
   cy.get('#userName', { timeout: 10000 }).should('be.visible').type(username);
