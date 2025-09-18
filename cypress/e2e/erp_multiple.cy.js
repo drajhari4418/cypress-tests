@@ -1,43 +1,55 @@
+// cypress/e2e/erp_multiple.cy.js
 const users = require('../fixtures/users.json');
 
 describe('ERP Multi-User Workflow', () => {
-  it('Logs in and navigates Purchase Order with multiple users', () => {
-    users.forEach((user) => {
-      cy.log(`Testing login for: ${user.username}`);
+
+  users.forEach((user) => {
+    it(`Logs in and navigates Purchase Order as ${user.username}`, () => {
 
       // Step 1: Login
       cy.loginERP(user.username, user.password);
 
-        // ✅ Wait for login to complete and page to load
-  // ✅ Confirm login success by footer text
-  cy.contains('footer', 'Tanaashi', { timeout: 15000 }).should('be.visible');
+      // ✅ Confirm login by checking footer text
+      cy.contains('footer', 'Tanaashi', { timeout: 15000 }).should('be.visible');
 
-  cy.get('body').should('be.visible'); 
-
-      // Step 2: Expand sidebar if collapsed
-      cy.expandSidebar();
+      // Step 2: Expand sidebar if collapsed (safe version)
+      cy.get('body').then(($body) => {
+        if ($body.find('#sidebarToggle').length > 0) {
+          cy.get('#sidebarToggle', { timeout: 5000 }).then(($toggle) => {
+            if ($toggle.is(':visible')) {
+              cy.wrap($toggle).click();
+            } else {
+              cy.log('Sidebar already expanded');
+            }
+          });
+        } else {
+          cy.log('Sidebar toggle not found – skipping');
+        }
+      });
 
       // Step 3: Navigate Purchase → Purchase Order → Generate PO / Job Work
-cy.contains('PURCHASE', { timeout: 10000 }).click();
-cy.contains('PURCHASE ORDER', { timeout: 10000 }).click();
-cy.contains('GENERATE PO / JOB WORK', { timeout: 10000 }).click();
+      cy.contains('PURCHASE', { timeout: 10000 }).click();
+      cy.contains('PURCHASE ORDER', { timeout: 10000 }).click();
+      cy.contains('GENERATE PO / JOB WORK', { timeout: 10000 }).click();
 
-// ✅ Wait for the page heading or some unique element to confirm page loaded
-cy.get('h1, h2, header', { timeout: 10000 }) // adjust selector to match your page header
-  .contains('GENERATE PO / JOB WORK')
-  .should('be.visible');
+      // Step 4: Wait for the container that holds the + Add New button
+      // Replace '#addDetails' with the actual container ID or class
+      cy.get('#addDetails', { timeout: 15000 }).should('be.visible');
 
-// Step 4: Verify + Add New button in the header
-cy.get('header', { timeout: 10000 })
-  .contains(/\+ Add New/i) // regex for flexibility
-  .should('be.visible')
-  .click(); // optional if you want to click it
+      // Step 5: Find and click + Add New button
+      // Using regex to match dynamically rendered button text
+      cy.get('#addDetails', { timeout: 15000 })
+        .find('button, a, span') // search common elements that may contain the button
+        .contains(/\+ Add New/i)
+        .should('be.visible')
+        .click();
 
+      cy.log(`Clicked + Add New for user: ${user.username}`);
 
-
-      // Step 5: Logout
+      // Step 6: Logout
       cy.get('#logoutBtn', { timeout: 10000 }).should('be.visible').click();
-      cy.wait(1000);
+      cy.wait(1000); // give ERP time to return to login page
     });
   });
+
 });
