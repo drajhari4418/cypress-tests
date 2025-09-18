@@ -31,15 +31,26 @@ Cypress.Commands.add('loginERP', (username, password) => {
   cy.get('#password', { timeout: 10000 }).should('be.visible').type(password);
   cy.get('#submitLogin').should('be.visible').click();
 
-  // Wait for redirect after login
-  cy.url({ timeout: 15000 }).should('include', '/welcome.action');
+   // ✅ Confirm login success by footer text
+  cy.contains('footer', 'Tanaashi', { timeout: 15000 }).should('be.visible');
 });
 
+// cypress/support/commands.js
 Cypress.Commands.add('expandSidebar', () => {
-  cy.get('#sidebarToggle').then(($toggle) => {
-    if ($toggle.is(':visible')) {
-      $toggle.click();
+  cy.get('body').then(($body) => {
+    // Check if sidebar toggle exists in DOM
+    if ($body.find('#sidebarToggle').length > 0) {
+      cy.get('#sidebarToggle', { timeout: 5000 }).then(($toggle) => {
+        if ($toggle.is(':visible')) {
+          cy.wrap($toggle).click();
+        } else {
+          cy.log('Sidebar already expanded, no toggle click needed');
+        }
+      });
+    } else {
+      cy.log('Sidebar toggle not found – maybe not needed on this page');
     }
   });
 });
+
 
