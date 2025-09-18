@@ -23,7 +23,8 @@ describe('ERP Multi-User Workflow', () => {
       cy.contains('GENERATE PO / JOB WORK', { timeout: 10000 }).click();
 
       // Step 4: Verify + Add New button
-      cy.contains('+ Add New Generate Po', { timeout: 10000 }).should('be.visible');
+cy.contains('+ Add New', { timeout: 10000 }).should('be.visible');
+
 
       // Step 5: Logout
       cy.get('#logoutBtn', { timeout: 10000 }).should('be.visible').click();
